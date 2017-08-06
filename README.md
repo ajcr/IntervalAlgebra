@@ -2,7 +2,7 @@
 
 A simple C extension module for Python implementing a basic Interval type.
 
-This was primarily a quick toy project to better familiarise myself with the intracacies of the CPython API. The set of features is small, but it may be a useful starting point for something more ambitious and serves as a usable type in the meantime.
+This was primarily a quick toy project for me to familiarise myself with some of the intracacies of the CPython API. Though relatively small, it may be a useful starting point for something more ambitious and still serves as a usable type in the meantime.
 
 ## Installation
 
@@ -19,13 +19,13 @@ An interval captures a (possibly infinite) collection of points between a *left*
 interval(3, 7)
 >>> 5.89 in a
 True
->>> 3 in a
+>>> 3 in a # the interval is closed
 True
 >>> 0 in a
 False
 ```
 
-The `left` and `right` attributes can be any objects at all, but must satisfy `left < right`. You can also add metadata to an interval. The `.span()` method shows the length of the interval:
+The `left` and `right` attributes can theoretically be any Python objects at all, but must satisfy `left < right`. You can also add metadata (like a tag) to an interval when it is created. The `.span()` method shows the length of the interval:
 
 ``` python
 >>> a.span()
@@ -50,7 +50,7 @@ False
 True
 ```
 
-We can also test if there is any overlap between intervals (i.e. they contain any common points):
+We can also test if there is any overlap between two intervals (i.e. they contain any common points):
 
 ``` python
 >>> c = interval(0, 3)
@@ -64,6 +64,5 @@ False
 
 ## Future work
 
-Given more time and fewer distractions, I'll implement more of Python's object protocol for the class (hashing, pickling, alternative constructors). There should also be options for intervals to be open or half-open. A good goal would be to recreate all of functionality for the interval type from the excellent [*intervaltree*](https://github.com/chaimleib/intervaltree) project by chaimleib.
-
+Given more time and fewer distractions, I'll implement more of Python's object protocol for the class (hashing, pickling, alternative constructors). There should also be options for intervals to be open or half-open. A good goal would be to recreate all of the functionality from the interval type in the excellent [*intervaltree*](https://github.com/chaimleib/intervaltree) project by chaimleib.
 
