@@ -6,6 +6,5 @@ interval_module = Extension('interval',
 setup(name = 'interval',
       version = '0.1',
       description = 'A simple interval type for Python.',
-      install_requires = ['pytest'],
       ext_modules = [interval_module])
 
