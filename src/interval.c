@@ -13,58 +13,45 @@ typedef struct {
 PyObject *
 interval_new(PyTypeObject *type, PyObject *args)
 {
+    PyObject *left = NULL, *right = NULL, *data = NULL;
     Interval *self;
-
-    self = (Interval *)type->tp_alloc(type, 0);
-    if (self != NULL) {
-        self->left = Py_None;
-        Py_INCREF(Py_None);
-        self->right = Py_None;
-        Py_INCREF(Py_None);
-        self->data = Py_None;
-        Py_INCREF(Py_None);
-    }
-    return (PyObject *)self;
-}
-
-static int
-interval_init(Interval *self, PyObject *args)
-{
-    PyObject *tmp, *left = NULL, *right = NULL, *data = NULL;
     int cmp_result;
 
     if (!PyArg_ParseTuple(args, "OO|O:interval", &left, &right, &data))
-        return -1;
+        return NULL;
 
     cmp_result = PyObject_RichCompareBool(left, right, Py_LT);
 
     if (cmp_result == 0) {
         PyErr_SetString(PyExc_ValueError,
                 "left must be strictly less than right");
-        return -1;
+        return NULL;
     }
     else if (cmp_result < 0) {
         PyErr_SetString(PyExc_TypeError,
                 "left must be comparable to right");
-        return -1;
+        return NULL;
     }
-    tmp = self->left;
+
+    self = (Interval *)type->tp_alloc(type, 0);
+    if (self == NULL)
+        return NULL;
+
     self->left = left;
     Py_INCREF(left);
-    Py_XDECREF(tmp);
 
-    tmp = self->right;
     self->right = right;
     Py_INCREF(right);
-    Py_XDECREF(tmp);
 
     if (data != NULL) {
-        tmp = self->data;
         self->data = data;
         Py_INCREF(data);
-        Py_XDECREF(tmp);
+    } else {
+        self->data = Py_None;
+        Py_INCREF(Py_None);
     }
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject *
@@ -401,7 +388,7 @@ static PyTypeObject IntervalType = {
     0,                                 /* tp_descr_get */
     0,                                 /* tp_descr_set */
     0,                                 /* tp_dictoffset */
-    (initproc)interval_init,           /* tp_init */
+    0,                                 /* tp_init */
     0,                                 /* tp_alloc */
     (newfunc)interval_new,             /* tp_new */
 };
