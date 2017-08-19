@@ -176,3 +176,15 @@ def test_not_overlaps(l1, r1, l2, r2):
     b = interval(l2, r2)
     assert not a.overlaps(b)
 
+# test distance
+
+@pytest.mark.parametrize('left,right,obj,distance', [
+    ( 1, 2,  1, 0),
+    (-1, 1,  -1, 0),
+    ( 1, 2,  3, 1),
+    ( 4, 5,  0, -4),
+])
+def test_not_overlaps(left, right, obj, distance):
+    a = interval(left, right)
+    assert a.distance(obj) == distance
+

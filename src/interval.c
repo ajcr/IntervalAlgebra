@@ -151,64 +151,44 @@ interval_overlaps(Interval *u, PyObject *v)
         Py_RETURN_FALSE;
 }
 
-
-/* WIP: distance to interval from other interval or object */
-
-/*
 static PyObject *
-interval_distanceto(Interval *u, PyObject *v)
+interval_distancetopoint(Interval *u, PyObject *v)
 {
-    PyObject *overlap, *dist_left, *dist_right,
-             *dist_leftabs, *dist_rightabs;
-    Interval *vi;
-    int result, cmp;
+    PyObject *result;
+    int cmp;
 
-    if (PyObject_TypeCheck(v, &IntervalType)) {
-        overlap = interval_overlaps(u, v);
-        if (overlap == NULL)
-            return NULL;
-
-        result = PyObject_IsTrue(overlap);
-
-        if (result < 0)
-            return NULL;
-
-        Py_XDECREF(overlap);
-        if (result == 1)
-            val = Py_RETURN_TRUE;
-
-        vi = (Interval *)vi;
-        dist_left = PyNumber_Subtract(vi->right, u->left);
-        dist_right = PyNumber_Subtract(vi->left, u->right);
-
-        if (dist_left == NULL || dist_right == NULL) {
-            goto fail;
-        }
-        dist_leftabs = PyNumber_Absolute(dist_left);
-        dist_rightabs = PyNumber_Absolute(dist_right);
-
-        if (dist_left == NULL || dist_right == NULL) {
-            goto fail;
-        }
-        result = PyObject_RichCompare(dist_leftabs, dist_rightabs, Py_LT);
-
-        if (result < 0)
-            goto fail;
-
-        if (result == 1)
-            return dist_right;
-        else
-            return dist_left;
+    cmp = interval_contains(u, v);
+    if (cmp < 0)
+        return NULL;
+    
+    if (cmp == 1) {
+        /* It would be useful to return zero in whatever
+         * type is compatible with the left and right
+         * attributes. For instance, timedelta(0) if it
+         * is a date interval. This may be quite difficult
+         * to do though.
+         */
+        result = PyLong_FromLong(0L);
+        Py_INCREF(result);
+        return result;
     }
 
-fail:
-    Py_XDECREF(dist_left);
-    Py_XDECREF(dist_right);
-    Py_XDECREF(dist_leftabs);
-    Py_XDECREF(dist_rightabs);
-    return NULL;
+    /* We don't need to check whether the comparison
+     * raises an error as we've already checked this
+     * using interval_contains.
+     */
+    cmp = PyObject_RichCompareBool(u->left, v, Py_GT);
+    if (cmp == 1)
+        result = PyNumber_Subtract(v, u->left);
+    else
+        result = PyNumber_Subtract(v, u->right);   
+
+    if (result == NULL)
+        return NULL;
+
+    Py_INCREF(result);
+    return result;
 }
-*/
 
 /* compare methods */
 
@@ -345,9 +325,11 @@ interval_methods[] = {
      "Return whether the interval is contained within another interval"},
     {"overlaps",       (PyCFunction)interval_overlaps,           METH_O,
      "Return whether the interval overlaps another interval"},
+    {"distance",       (PyCFunction)interval_distancetopoint,    METH_O,
+     "Return the interval's distance to another object"},
     {"__contains__",      (PyCFunction)interval_contains,        METH_O | METH_COEXIST,
      "Return whether the object lies within the interval"},
-    {NULL,           NULL}  /* sentinel */
+    {NULL, NULL}  /* sentinel */
 };
 
 static PyTypeObject IntervalType = {
