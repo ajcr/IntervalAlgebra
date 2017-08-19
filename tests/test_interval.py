@@ -2,9 +2,16 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 import pytest
+
 from interval import interval
 
 # test construction and attribute access/setting
+
+def test_data_attribute_access():
+    x = interval(0, 5)
+    assert x.data is None
+    y = interval(0, 5, 'some data')
+    assert y.data == 'some data'
 
 @pytest.mark.parametrize('left,right', [
     (  8, 6),
