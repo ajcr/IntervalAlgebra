@@ -152,3 +152,27 @@ def test_not_gt(l1, r1, l2, r2):
     b = interval(l2, r2)
     assert not a > b
 
+
+# test overlap
+
+@pytest.mark.parametrize('l1,r1,l2,r2', [
+    ( 1, 2,  1, 2),
+    (-1, 1,  1, 2),
+    (-1, 7,  0, 5),
+    (1.3, 6, 0, 10),
+    (1.3, 6, 5, 10),
+])
+def test_overlaps(l1, r1, l2, r2):
+    a = interval(l1, r1)
+    b = interval(l2, r2)
+    assert a.overlaps(b)
+
+@pytest.mark.parametrize('l1,r1,l2,r2', [
+    ( 1, 2,  3, 4),
+    ( 4, 5,  0, 3),
+])
+def test_not_overlaps(l1, r1, l2, r2):
+    a = interval(l1, r1)
+    b = interval(l2, r2)
+    assert not a.overlaps(b)
+
