@@ -1,4 +1,4 @@
-# IntervalType
+# IntervalAlgebra
 
 A C extension module for Python implementing a basic Interval type and the key relations of [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen%27s_interval_algebra).
 
