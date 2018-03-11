@@ -51,7 +51,6 @@ def test_readonly_attr(left, right, data):
         x.right = 0
         x.data = 'should fail'
 
-
 # test __contains__
 
 @pytest.mark.parametrize('left,right,thing', [
@@ -109,10 +108,9 @@ def test_ne(l1, r1, l2, r2):
     assert a != b
 
 @pytest.mark.parametrize('l1,r1,l2,r2', [
-    ( 1, 2,  1, 5),
-    ( 1, 2,  0, 5),
-    (-1, 7, -3.3, 10),
-    ( dt(2000, 1, 1), dt(2000, 6, 1), dt(1999, 3, 2), dt(2007, 3, 7)),
+    ( 1, 2,  3, 5),
+    (-1, 7,  8, 10),
+    ( dt(2000, 1, 1), dt(2000, 6, 1), dt(2001, 3, 2), dt(2007, 3, 7)),
 ])
 def test_lt(l1, r1, l2, r2):
     a = interval(l1, r1)
@@ -120,63 +118,20 @@ def test_lt(l1, r1, l2, r2):
     assert a < b
 
 @pytest.mark.parametrize('l1,r1,l2,r2', [
-    ( 1, 5,  2, 5),
-    ( 0, 7,  0, 5),
-    (-1, 7,  1, 7),
-    ( dt(2000, 1, 1), dt(2000, 6, 1), dt(2000, 3, 2), dt(2000, 3, 7)),
+    ( 0, 7,  -2, -1),
+    ( dt(2000, 1, 1), dt(2000, 6, 1), dt(1999, 3, 2), dt(1999, 3, 7)),
 ])
 def test_gt(l1, r1, l2, r2):
     a = interval(l1, r1)
     b = interval(l2, r2)
     assert a > b
 
-# note: not lt means that a is not a proper subinterval of b
-@pytest.mark.parametrize('l1,r1,l2,r2', [
-    ( 1, 2,  1, 2),
-    (-1, 3,  0, 5),
-    (1.3, 6, 5, 10),
-    (1.3, 6, 7, 10),
-])
-def test_not_lt(l1, r1, l2, r2):
-    a = interval(l1, r1)
-    b = interval(l2, r2)
-    assert not a < b
-
-@pytest.mark.parametrize('l1,r1,l2,r2', [
-    ( 0, 2,  1, 3),
-    (-1, 3,  0, 5),
-    (0.9, 3,  3, 5),
-])
-def test_not_gt(l1, r1, l2, r2):
-    a = interval(l1, r1)
-    b = interval(l2, r2)
-    assert not a > b
-
-
-# test overlap
-
-@pytest.mark.parametrize('l1,r1,l2,r2', [
-    ( 1, 2,  1, 2),
-    (-1, 1,  1, 2),
-    (-1, 7,  0, 5),
-    (1.3, 6, 0, 10),
-    (1.3, 6, 5, 10),
-])
-def test_overlaps(l1, r1, l2, r2):
-    a = interval(l1, r1)
-    b = interval(l2, r2)
-    assert a.overlaps(b)
-
-@pytest.mark.parametrize('l1,r1,l2,r2', [
-    ( 1, 2,  3, 4),
-    ( 4, 5,  0, 3),
-])
-def test_not_overlaps(l1, r1, l2, r2):
-    a = interval(l1, r1)
-    b = interval(l2, r2)
-    assert not a.overlaps(b)
-
-# test distance
+def test_ge_le_raise_not_implemented_error():
+    a = interval(1, 2)
+    b = interval(3, 4)
+    with pytest.raises(TypeError):
+        a <= b
+        a >= b
 
 @pytest.mark.parametrize('left,right,obj,distance', [
     ( 1, 2,  1, 0),
@@ -184,7 +139,6 @@ def test_not_overlaps(l1, r1, l2, r2):
     ( 1, 2,  3, 1),
     ( 4, 5,  0, -4),
 ])
-def test_not_overlaps(left, right, obj, distance):
+def test_distance(left, right, obj, distance):
     a = interval(left, right)
     assert a.distance(obj) == distance
-
