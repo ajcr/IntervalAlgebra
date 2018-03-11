@@ -1,8 +1,8 @@
 # IntervalType
 
-A simple C extension module for Python implementing a basic Interval type.
+A C extension module for Python implementing a basic Interval type and the key relations of [Allen's Interval Algebra](https://en.wikipedia.org/wiki/Allen%27s_interval_algebra).
 
-This was primarily a quick toy project for me to familiarise myself with some of the intracacies of the CPython API. Though relatively small, it may be a useful starting point for something more ambitious and still serves as a usable type in the meantime.
+This was primarily a quick toy project for me to familiarise myself with some of the intracacies of the CPython API. It may be a useful starting point for something more ambitious and serves as a usable type in the meantime.
 
 ## Installation
 
@@ -25,7 +25,7 @@ True
 False
 ```
 
-The `left` and `right` attributes can theoretically be any Python objects at all, but must satisfy `left < right`. You can also add metadata (like a tag) to an interval when it is created. The `.span()` method shows the length of the interval:
+The `left` and `right` attributes can theoretically be any Python objects at all, but must satisfy `left < right`. You can also add metadata (any Python object you like) to an interval when it is created. The `.span()` method shows the length of the interval:
 
 ``` python
 >>> a.span()
@@ -38,31 +38,46 @@ The `left` and `right` attributes can theoretically be any Python objects at all
 timedelta(28)
 ```
 
-Intervals are compared by looking at the `left` and `right` attributes internally. One interval is greater than another if its span completely covers that interval (the `<` here is analogous to the builtin `set` type where it means 'subset of'):
+Intervals are compared by looking at the `left` and `right` attributes internally. One interval is strictly greater than another if ends before the other begins:
 
 ``` python
->>> b = interval(4, 6)
->>> a == b
+>>> b = interval(6, 12)
+>>> a == b # equivalent to a.equals(b)
 False
->>> a < b
+>>> a < b  # equivalent to a.before(b)
 False
->>> a > b
-True
+>>> a > b  # equivalent to a.after(b)
+False
 ```
 
-We can also test if there is any overlap between two intervals (i.e. they contain any common points):
+Note the `<=` and `>=` are not supported as they are ambiguous in the context of Allen's Interval Algebra.
+
+We can also test if there is any overlap between two intervals (i.e. they contain common points - not just an endpoint). Two intervals are said to meet if the `left` of one equals the `right` of the other:
 
 ``` python
 >>> c = interval(0, 3)
 >>> a.overlaps(b)
 True
->>> a.overlaps(c)
+>>> a.meets(c) # they meet at 3
 True
 >>> b.overlaps(c)
 False
 ```
 
+An interval may occur during another, or it may start or finish another interval:
+
+``` python
+>>> x = interval(0, 5)
+>>> interval(1, 2).during(x)
+True
+>>> interval(0, 2).starts(x)
+True
+>>> interval(1, 5).finishes(x)
+True
+>>> interval(4, 7).during(x)
+False
+```
+
 ## Future work
 
-Given more time and fewer distractions, I'll implement more of Python's object protocol for the class (hashing, pickling, alternative constructors). There should also be options for intervals to be open or half-open. A good goal would be to recreate all of the functionality from the interval type in the excellent [*intervaltree*](https://github.com/chaimleib/intervaltree) project by chaimleib.
-
+Given more time and fewer distractions, I'll add more of Python's object protocol for the class (hashing, pickling, alternative constructors). Allen's [original paper](http://cse.unl.edu/~choueiry/Documents/Allen-CACM1983.pdf) contains an algorithm for reasoning on temporal intervals that may be insightful to implement.
