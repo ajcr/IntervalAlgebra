@@ -144,26 +144,26 @@ interval_after(Interval *v, PyObject *w)
 }
 
 static PyObject *
-interval_overlaps(Interval *u, PyObject *v)
+interval_overlaps(Interval *v, PyObject *w)
 {
-    Interval *vi;
+    Interval *wi;
     int result, cmp;
 
-    if (!PyObject_TypeCheck(v, &IntervalType)) {
+    if (!PyObject_TypeCheck(w, &IntervalType)) {
         PyErr_SetString(PyExc_TypeError,
                   "Object must be of Interval type");
         return NULL;
     }
-    vi = (Interval *)v;
-    cmp = PyObject_RichCompareBool(u->left, vi->left, Py_LE);
+    wi = (Interval *)w;
+    cmp = PyObject_RichCompareBool(v->left, wi->left, Py_LE);
 
     if (cmp < 0)
         return NULL;
 
     if (cmp == 1)
-        result = PyObject_RichCompareBool(u->right, vi->left, Py_GE);
+        result = PyObject_RichCompareBool(v->right, wi->left, Py_GE);
     else
-        result = PyObject_RichCompareBool(u->left, vi->right, Py_LT);
+        result = PyObject_RichCompareBool(v->left, wi->right, Py_LT);
 
     if (result == 1)
         Py_RETURN_TRUE;
@@ -196,20 +196,20 @@ interval_equals(Interval *v, PyObject *w)
 }
 
 static PyObject *
-interval_during(Interval *u, PyObject *v)
+interval_during(Interval *v, PyObject *w)
 {
-    /* determine whether u is completely contained in v */
+    /* determine whether v is completely contained in w */
     int cmp_left, cmp_right;
-    Interval *vi;
+    Interval *wi;
 
-    if (!PyObject_TypeCheck(v, &IntervalType)) {
+    if (!PyObject_TypeCheck(w, &IntervalType)) {
         PyErr_SetString(PyExc_TypeError,
                   "Object must be of Interval type");
         return NULL;
     }
-    vi = (Interval *)v;
-    cmp_left = PyObject_RichCompareBool(u->left, vi->left, Py_GT);
-    cmp_right = PyObject_RichCompareBool(u->right, vi->right, Py_LT);
+    wi = (Interval *)w;
+    cmp_left = PyObject_RichCompareBool(v->left, wi->left, Py_GT);
+    cmp_right = PyObject_RichCompareBool(v->right, wi->right, Py_LT);
 
     if (cmp_left < 0 || cmp_right < 0)
         return NULL;
@@ -221,19 +221,19 @@ interval_during(Interval *u, PyObject *v)
 }
 
 static PyObject *
-interval_starts(Interval *u, PyObject *v)
+interval_starts(Interval *v, PyObject *w)
 {
     int cmp_left, cmp_right;
-    Interval *vi;
+    Interval *wi;
 
-    if (!PyObject_TypeCheck(v, &IntervalType)) {
+    if (!PyObject_TypeCheck(w, &IntervalType)) {
         PyErr_SetString(PyExc_TypeError,
                   "Object must be of Interval type");
         return NULL;
     }
-    vi = (Interval *)v;
-    cmp_left = PyObject_RichCompareBool(u->left, vi->left, Py_EQ);
-    cmp_right = PyObject_RichCompareBool(u->right, vi->right, Py_LT);
+    wi = (Interval *)w;
+    cmp_left = PyObject_RichCompareBool(v->left, wi->left, Py_EQ);
+    cmp_right = PyObject_RichCompareBool(v->right, wi->right, Py_LT);
 
     if (cmp_left < 0 || cmp_right < 0)
         return NULL;
@@ -245,19 +245,19 @@ interval_starts(Interval *u, PyObject *v)
 }
 
 static PyObject *
-interval_finishes(Interval *u, PyObject *v)
+interval_finishes(Interval *v, PyObject *w)
 {
     int cmp_left, cmp_right;
-    Interval *vi;
+    Interval *wi;
 
-    if (!PyObject_TypeCheck(v, &IntervalType)) {
+    if (!PyObject_TypeCheck(w, &IntervalType)) {
         PyErr_SetString(PyExc_TypeError,
                   "Object must be of Interval type");
         return NULL;
     }
-    vi = (Interval *)v;
-    cmp_left = PyObject_RichCompareBool(u->left, vi->left, Py_GT);
-    cmp_right = PyObject_RichCompareBool(u->right, vi->right, Py_EQ);
+    wi = (Interval *)w;
+    cmp_left = PyObject_RichCompareBool(v->left, wi->left, Py_GT);
+    cmp_right = PyObject_RichCompareBool(v->right, wi->right, Py_EQ);
 
     if (cmp_left < 0 || cmp_right < 0)
         return NULL;
@@ -269,19 +269,19 @@ interval_finishes(Interval *u, PyObject *v)
 }
 
 static PyObject *
-interval_meets(Interval *u, PyObject *v)
+interval_meets(Interval *v, PyObject *w)
 {
     int cmp_left, cmp_right;
-    Interval *vi;
+    Interval *wi;
 
-    if (!PyObject_TypeCheck(v, &IntervalType)) {
+    if (!PyObject_TypeCheck(w, &IntervalType)) {
         PyErr_SetString(PyExc_TypeError,
                   "Object must be of Interval type");
         return NULL;
     }
-    vi = (Interval *)v;
-    cmp_left = PyObject_RichCompareBool(u->right, vi->left, Py_EQ);
-    cmp_right = PyObject_RichCompareBool(u->left, vi->right, Py_EQ);
+    wi = (Interval *)w;
+    cmp_left = PyObject_RichCompareBool(v->right, wi->left, Py_EQ);
+    cmp_right = PyObject_RichCompareBool(v->left, wi->right, Py_EQ);
 
     if (cmp_left < 0 || cmp_right < 0)
         return NULL;
@@ -298,15 +298,6 @@ interval_meets(Interval *u, PyObject *v)
  * contains
  * distancetopoint
  */
-
-static PyObject *
-interval_span(Interval *v)
-{
-    PyObject *result;
-
-    result = PyNumber_Subtract(v->right, v->left);
-    return result;
-}
 
 static int
 interval_contains(Interval *op, PyObject *v)
@@ -340,12 +331,17 @@ interval_containsdirect(Interval *op, PyObject *v)
 }
 
 static PyObject *
-interval_distancetopoint(Interval *u, PyObject *v)
+interval_span(Interval *op)
 {
-    PyObject *result;
+    return PyNumber_Subtract(op->right, op->left);
+}
+
+static PyObject *
+interval_distancetopoint(Interval *v, PyObject *w)
+{
     int cmp;
 
-    cmp = interval_contains(u, v);
+    cmp = interval_contains(v, w);
     if (cmp < 0)
         return NULL;
 
@@ -356,26 +352,18 @@ interval_distancetopoint(Interval *u, PyObject *v)
          * is a date interval. This may be quite difficult
          * to do though.
          */
-        result = PyLong_FromLong(0L);
-        Py_INCREF(result);
-        return result;
+        return PyLong_FromLong(0);
     }
 
     /* We don't need to check whether the comparison
      * raises an error as we've already checked this
      * using interval_contains.
      */
-    cmp = PyObject_RichCompareBool(u->left, v, Py_GT);
+    cmp = PyObject_RichCompareBool(v->left, w, Py_GT);
     if (cmp == 1)
-        result = PyNumber_Subtract(v, u->left);
+        return PyNumber_Subtract(w, v->left);
     else
-        result = PyNumber_Subtract(v, u->right);
-
-    if (result == NULL)
-        return NULL;
-
-    Py_INCREF(result);
-    return result;
+        return PyNumber_Subtract(w, v->right);
 }
 
 /* Rich comparison */
@@ -384,7 +372,7 @@ static PyObject *
 interval_richcompare(Interval *v, PyObject *w, int op)
 {
     PyObject *r1;
-    int r3;
+    int r2;
 
     if(!PyObject_TypeCheck(w, &IntervalType))
         Py_RETURN_NOTIMPLEMENTED;
@@ -397,17 +385,11 @@ interval_richcompare(Interval *v, PyObject *w, int op)
             r1 = interval_richcompare(v, w, Py_EQ);
             if (r1 == NULL)
                 return NULL;
-            r3 = PyObject_IsTrue(r1);
+            r2 = PyObject_IsTrue(r1);
             Py_DECREF(r1);
-            if (r3 < 0)
+            if (r2 < 0)
                 return NULL;
-            return PyBool_FromLong(!r3);
-
-        case Py_LE:
-            Py_RETURN_NOTIMPLEMENTED;
-
-        case Py_GE:
-            Py_RETURN_NOTIMPLEMENTED;
+            return PyBool_FromLong(!r2);
 
         case Py_LT:
             return interval_before(v, w);
