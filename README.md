@@ -31,7 +31,7 @@ The `left` and `right` attributes can theoretically be any Python objects at all
 >>> a.span()
 4
 >>> from datetime import datetime
->>> feb2000 = interval(datetime(2000, 2, 1), datetime, 2, 29), 'leap month!')
+>>> feb2000 = interval(datetime(2000, 2, 1), datetime(2000, 2, 29), 'leap month!')
 >>> feb2000.data
 'Leap month!'
 >>> feb2000.span()
